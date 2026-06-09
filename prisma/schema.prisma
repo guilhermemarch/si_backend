@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PerfilUsuario {
+  ADMIN
+  USUARIO
+}
+
+enum StatusLead {
+  NOVO
+  CONTATO_REALIZADO
+  VISITA_AGENDADA
+  PROPOSTA_ENVIADA
+  NEGOCIACAO
+  GANHO
+  PERDIDO
+}
+
+enum TipoImovel {
+  CASA
+  APARTAMENTO
+  TERRENO
+  COMERCIAL
+}
+
+enum StatusImovel {
+  DISPONIVEL
+  RESERVADO
+  VENDIDO
+  INATIVO
+}
+
+model Usuario {
+  id           String        @id @default(uuid())
+  nome         String
+  email        String        @unique
+  senhaHash    String
+  perfil       PerfilUsuario @default(USUARIO)
+  criadoEm     DateTime      @default(now())
+  atualizadoEm DateTime      @updatedAt
+}
+
+model Lead {
+  id           String     @id @default(uuid())
+  nome         String
+  email        String
+  telefone     String
+  origem       String
+  status       StatusLead @default(NOVO)
+  observacoes  String?
+  imovelId     String?
+  imovel       Imovel?    @relation(fields: [imovelId], references: [id], onDelete: SetNull)
+  criadoEm     DateTime   @default(now())
+  atualizadoEm DateTime   @updatedAt
+
+  @@index([nome])
+  @@index([status])
+  @@index([imovelId])
+}
+
+model Imovel {
+  id           String       @id @default(uuid())
+  titulo       String
+  tipo         TipoImovel
+  valor        Decimal      @db.Decimal(12, 2)
+  cidade       String
+  bairro       String
+  status       StatusImovel @default(DISPONIVEL)
+  descricao    String?
+  leads        Lead[]
+  criadoEm     DateTime     @default(now())
+  atualizadoEm DateTime     @updatedAt
+
+  @@index([cidade])
+  @@index([bairro])
+  @@index([tipo])
+  @@index([status])
+}
