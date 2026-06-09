@@ -1,0 +1,124 @@
+{
+  "info": {
+    "name": "SI API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:3001" },
+    { "key": "token", "value": "" },
+    { "key": "lead_id", "value": "" },
+    { "key": "imovel_id", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Autenticacao",
+      "item": [
+        {
+          "name": "Cadastro",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/auth/cadastro",
+            "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Usuario Teste\",\n  \"email\": \"usuario@teste.com\",\n  \"senha\": \"123456\"\n}" }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": { "type": "text/javascript", "exec": ["const json = pm.response.json();", "pm.collectionVariables.set('token', json.token);"] }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/auth/login",
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"admin@solucoesimobiliarias.com\",\n  \"senha\": \"admin123\"\n}" }
+          }
+        },
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/auth/me"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Imoveis",
+      "item": [
+        {
+          "name": "Criar imovel",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.collectionVariables.set('imovel_id', pm.response.json().id);"] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/imoveis",
+            "body": { "mode": "raw", "raw": "{\n  \"titulo\": \"Casa de teste\",\n  \"tipo\": \"CASA\",\n  \"valor\": 650000,\n  \"cidade\": \"Sao Paulo\",\n  \"bairro\": \"Moema\",\n  \"status\": \"DISPONIVEL\",\n  \"descricao\": \"Imovel criado pelo Postman\"\n}" }
+          }
+        },
+        { "name": "Listar imoveis", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{base_url}}/imoveis" } },
+        { "name": "Buscar imovel por ID", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{base_url}}/imoveis/{{imovel_id}}" } },
+        {
+          "name": "Atualizar imovel",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/imoveis/{{imovel_id}}",
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"RESERVADO\"\n}" }
+          }
+        },
+        { "name": "Excluir imovel", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{base_url}}/imoveis/{{imovel_id}}" } }
+      ]
+    },
+    {
+      "name": "Leads",
+      "item": [
+        {
+          "name": "Criar lead",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.collectionVariables.set('lead_id', pm.response.json().id);"] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/leads",
+            "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Lead Teste\",\n  \"email\": \"lead@teste.com\",\n  \"telefone\": \"11999990000\",\n  \"origem\": \"Postman\",\n  \"status\": \"NOVO\",\n  \"observacoes\": \"Lead criado pelo Postman\",\n  \"imovelId\": \"{{imovel_id}}\"\n}" }
+          }
+        },
+        { "name": "Listar leads", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{base_url}}/leads" } },
+        { "name": "Buscar lead por ID", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{base_url}}/leads/{{lead_id}}" } },
+        {
+          "name": "Atualizar lead",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/leads/{{lead_id}}",
+            "body": { "mode": "raw", "raw": "{\n  \"observacoes\": \"Lead atualizado pelo Postman\"\n}" }
+          }
+        },
+        {
+          "name": "Alterar status do lead",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/leads/{{lead_id}}/status",
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"NEGOCIACAO\"\n}" }
+          }
+        },
+        { "name": "Excluir lead", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{base_url}}/leads/{{lead_id}}" } }
+      ]
+    },
+    { "name": "Dashboard resumo", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }], "url": "{{base_url}}/dashboard/resumo" } },
+    {
+      "name": "Chatbot conversa",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+        "url": "{{base_url}}/chatbot/conversa",
+        "body": { "mode": "raw", "raw": "{\n  \"mensagem\": \"Quantos leads estao em negociacao?\"\n}" }
+      }
+    }
+  ]
+}
