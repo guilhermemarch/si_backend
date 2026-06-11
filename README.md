@@ -27,7 +27,7 @@ Copie o arquivo de exemplo:
 cp .env.example .env
 ```
 
-Exemplo de `.env`:
+Exemplo de `.env` para desenvolvimento local (backend fora do Docker):
 
 ```env
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/case_imoveis"
@@ -37,6 +37,8 @@ IA_SERVICE_URL="http://localhost:8000"
 PORT=3001
 ```
 
+Para subir o stack completo (frontend, backend, IA e banco), use o [`docker-compose.yml`](../docker-compose.yml) na raiz do monorepo.
+
 ## Instalacao
 
 ```bash
@@ -45,7 +47,9 @@ npm install
 
 ## Banco de dados
 
-Suba o PostgreSQL:
+### Desenvolvimento local
+
+Suba apenas o PostgreSQL:
 
 ```bash
 docker compose up -d postgres
@@ -68,6 +72,14 @@ Rode o seed:
 ```bash
 npm run seed
 ```
+
+### Docker (stack na raiz)
+
+Ao subir o backend pelo `docker compose up` da raiz, o entrypoint (`docker-entrypoint.sh`) executa automaticamente:
+
+1. `prisma migrate deploy`
+2. seed apenas se o banco estiver vazio (`scripts/seed-se-vazio.js`)
+3. inicio da API
 
 Usuario admin criado pelo seed:
 
@@ -166,6 +178,5 @@ O frontend nao chama Groq e nao chama o servico IA diretamente.
 ## Proximos passos
 
 - Adicionar Swagger, se for necessario para avaliacao.
-- Criar docker-compose geral com frontend, backend, IA e banco.
 - Melhorar tratamento visual de erros no frontend.
 - Adicionar testes automatizados em uma etapa futura.
