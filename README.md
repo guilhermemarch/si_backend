@@ -1,182 +1,66 @@
-# SI - Backend
+# SI - Soluções Imobiliárias (Backend)
 
-API em NestJS para um CRM imobiliario simples com usuarios, leads, imoveis, dashboard e integracao com microsservico de IA.
+API REST do CRM imobiliário. NestJS, Prisma e PostgreSQL.
 
-## Tecnologias
-
-- NestJS
-- TypeScript
-- PostgreSQL
-- Prisma ORM
-- JWT
-- bcrypt
-- class-validator
-- Docker Compose
-
-## Requisitos
+## Pré-requisitos
 
 - Node.js 20+
-- npm
-- Docker, para subir o PostgreSQL localmente
+- Docker (para o Postgres local)
 
-## Configuracao
-
-Copie o arquivo de exemplo:
+## Configuração
 
 ```bash
 cp .env.example .env
 ```
 
-Exemplo de `.env` para desenvolvimento local (backend fora do Docker):
-
 ```env
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/case_imoveis"
-JWT_SECRET="segredo-local"
-JWT_EXPIRES_IN="1d"
-IA_SERVICE_URL="http://localhost:8000"
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/case_imoveis
+JWT_SECRET=segredo-local
+JWT_EXPIRES_IN=1d
+IA_SERVICE_URL=http://localhost:8000
 PORT=3001
 ```
 
-Para subir o stack completo (frontend, backend, IA e banco), use o [`docker-compose.yml`](../docker-compose.yml) na raiz do monorepo.
+## Rodar localmente
 
-## Instalacao
-
-```bash
-npm install
-```
-
-## Banco de dados
-
-### Desenvolvimento local
-
-Suba apenas o PostgreSQL:
+Suba o banco:
 
 ```bash
 docker compose up -d postgres
 ```
 
-Rode as migrations:
+Depois:
 
 ```bash
+npm install
 npx prisma migrate deploy
-```
-
-Gere o client do Prisma:
-
-```bash
 npx prisma generate
-```
-
-Rode o seed:
-
-```bash
 npm run seed
-```
-
-### Docker (stack na raiz)
-
-Ao subir o backend pelo `docker compose up` da raiz, o entrypoint (`docker-entrypoint.sh`) executa automaticamente:
-
-1. `prisma migrate deploy`
-2. seed apenas se o banco estiver vazio (`scripts/seed-se-vazio.js`)
-3. inicio da API
-
-Usuario admin criado pelo seed:
-
-```txt
-Email: admin@solucoesimobiliarias.com
-Senha: admin123
-```
-
-## Execucao local
-
-```bash
 npm run start:dev
 ```
 
-A API roda em:
+API em http://localhost:3001
 
-```txt
-http://localhost:3001
-```
+### Login do seed
 
-## Docker
-
-Build da imagem:
-
-```bash
-docker build -t case-imoveis-backend .
-```
-
-Execucao da imagem:
-
-```bash
-docker run --env-file .env -p 3001:3001 case-imoveis-backend
-```
+- Email: `admin@solucoesimobiliarias.com`
+- Senha: `admin123`
 
 ## Rotas principais
 
-Autenticacao:
+- Auth: `POST /auth/cadastro`, `POST /auth/login`, `GET /auth/me`
+- Leads: `GET/POST /leads`, `PATCH /leads/:id`, `PATCH /leads/:id/status`
+- Imóveis: `GET/POST /imoveis`, `PATCH /imoveis/:id`
+- Dashboard: `GET /dashboard/resumo`
+- Chatbot: `POST /chatbot/conversa` (proxy para o serviço de IA)
 
-- `POST /auth/cadastro`
-- `POST /auth/login`
-- `GET /auth/me`
+Collection Postman: `postman/collection.json`
 
-Leads:
+## Docker
 
-- `POST /leads`
-- `GET /leads`
-- `GET /leads/:id`
-- `PATCH /leads/:id`
-- `PATCH /leads/:id/status`
-- `DELETE /leads/:id`
-
-Imoveis:
-
-- `POST /imoveis`
-- `GET /imoveis`
-- `GET /imoveis/:id`
-- `PATCH /imoveis/:id`
-- `DELETE /imoveis/:id`
-
-Dashboard e chatbot:
-
-- `GET /dashboard/resumo`
-- `POST /chatbot/conversa`
-
-## Postman
-
-A collection esta em:
-
-```txt
-postman/collection.json
+```bash
+docker build -t si-backend .
+docker run --env-file .env -p 3001:3001 si-backend
 ```
 
-Importe no Postman, execute login e use a variavel `token` nas rotas privadas.
-
-## Integracao com IA
-
-O backend chama o microsservico IA em `IA_SERVICE_URL`.
-
-Fluxo:
-
-```txt
-Frontend -> Backend -> IA -> Groq
-```
-
-O frontend nao chama Groq e nao chama o servico IA diretamente.
-
-## Decisoes tecnicas
-
-- Autenticacao propria com email, senha com bcrypt e JWT simples.
-- Sem refresh token neste MVP.
-- Dados compartilhados entre usuarios, sem multiempresa.
-- Status de leads sao enums fixos no Prisma.
-- Imoveis foram mantidos simples, sem campos extras fora do escopo.
-- O backend monta contexto real antes de chamar a IA.
-
-## Proximos passos
-
-- Adicionar Swagger, se for necessario para avaliacao.
-- Melhorar tratamento visual de erros no frontend.
-- Adicionar testes automatizados em uma etapa futura.
+No stack completo (docker-compose da raiz), migrations e seed rodam no startup via `docker-entrypoint.sh`.
