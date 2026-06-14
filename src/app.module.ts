@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { RolesGuard } from './comum/guards/roles.guard';
+import { ModuloAssets } from './modulos/assets/assets.module';
 import { ModuloAutenticacao } from './modulos/autenticacao/autenticacao.module';
 import { ModuloChatbot } from './modulos/chatbot/chatbot.module';
 import { ModuloDashboard } from './modulos/dashboard/dashboard.module';
@@ -12,6 +14,7 @@ import { ModuloPrisma } from './prisma/prisma.module';
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     ModuloPrisma,
+    ModuloAssets,
     ModuloUsuarios,
     ModuloAutenticacao,
     ModuloImoveis,
@@ -19,5 +22,6 @@ import { ModuloPrisma } from './prisma/prisma.module';
     ModuloDashboard,
     ModuloChatbot,
   ],
+  providers: [RolesGuard],
 })
 export class AppModule {}
