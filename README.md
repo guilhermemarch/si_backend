@@ -47,10 +47,40 @@ flowchart TB
 
 ```mermaid
 erDiagram
+  Usuario {
+    uuid id PK
+    string nome
+    string email UK
+    enum perfil
+  }
+  Imovel {
+    uuid id PK
+    string titulo
+    enum tipo
+    decimal valor
+    string cidade
+    string bairro
+    enum status
+    string cep
+  }
+  Lead {
+    uuid id PK
+    string nome
+    string email
+    enum status
+    uuid imovelId FK
+  }
+  ImovelImagem {
+    uuid id PK
+    uuid imovelId FK
+    string url
+    int ordem
+  }
   Imovel ||--o{ Lead : ""
   Imovel ||--o{ ImovelImagem : ""
-  Usuario
 ```
+
+`Usuario` não se relaciona com as demais tabelas — autenticação separada do CRM. Galeria em `ImovelImagem` (`ordem = 0` é a capa).
 
 ## Rotas principais
 
