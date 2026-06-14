@@ -9,7 +9,10 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { PerfilUsuario } from '@prisma/client';
+import { Roles } from '../../comum/decorators/roles.decorator';
 import { JwtGuard } from '../../comum/guards/jwt.guard';
+import { RolesGuard } from '../../comum/guards/roles.guard';
 import { DtoAlterarStatusLead } from './dtos/alterar-status-lead.dto';
 import { DtoAtualizarLead } from './dtos/atualizar-lead.dto';
 import { DtoCriarLead } from './dtos/criar-lead.dto';
@@ -21,6 +24,8 @@ import { ServicoLeads } from './leads.service';
 export class ControladorLeads {
   constructor(private readonly leads: ServicoLeads) {}
 
+  @Roles(PerfilUsuario.ADMIN)
+  @UseGuards(RolesGuard)
   @Post()
   criar(@Body() dados: DtoCriarLead) {
     return this.leads.criar(dados);
@@ -36,16 +41,22 @@ export class ControladorLeads {
     return this.leads.buscarPorId(id);
   }
 
+  @Roles(PerfilUsuario.ADMIN)
+  @UseGuards(RolesGuard)
   @Patch(':id')
   atualizar(@Param('id') id: string, @Body() dados: DtoAtualizarLead) {
     return this.leads.atualizar(id, dados);
   }
 
+  @Roles(PerfilUsuario.ADMIN)
+  @UseGuards(RolesGuard)
   @Patch(':id/status')
   alterarStatus(@Param('id') id: string, @Body() dados: DtoAlterarStatusLead) {
     return this.leads.alterarStatus(id, dados);
   }
 
+  @Roles(PerfilUsuario.ADMIN)
+  @UseGuards(RolesGuard)
   @Delete(':id')
   remover(@Param('id') id: string) {
     return this.leads.remover(id);
