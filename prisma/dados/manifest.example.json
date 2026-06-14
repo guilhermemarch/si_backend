@@ -1,0 +1,16 @@
+[
+  {
+    "titulo": "Exemplo — Apartamento Centro",
+    "tipo": "APARTAMENTO",
+    "valor": 420000,
+    "cidade": "São Paulo",
+    "bairro": "Centro",
+    "status": "DISPONIVEL",
+    "descricao": "Formato de referência do manifest externo.",
+    "quartos": 2,
+    "areaM2": 55,
+    "imagensUrls": [
+      "http://localhost:3001/assets/imoveis/images/1-exemplo.webp"
+    ]
+  }
+]
