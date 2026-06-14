@@ -1,5 +1,11 @@
 import { StatusLead } from '@prisma/client';
-import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsUUID } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsUUID,
+} from 'class-validator';
 
 export class DtoCriarLead {
   @IsNotEmpty()

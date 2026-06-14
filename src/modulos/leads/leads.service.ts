@@ -10,12 +10,20 @@ import { DtoFiltroLeads } from './dtos/filtro-leads.dto';
 export class ServicoLeads {
   constructor(private readonly prisma: ServicoPrisma) {}
 
+  private readonly incluirImovel = {
+    imovel: {
+      include: {
+        imagens: { orderBy: { ordem: 'asc' as const } },
+      },
+    },
+  };
+
   async criar(dados: DtoCriarLead) {
     await this.validarImovel(dados.imovelId);
 
     return this.prisma.lead.create({
       data: this.limparDados(dados),
-      include: { imovel: true },
+      include: this.incluirImovel,
     });
   }
 
@@ -30,7 +38,7 @@ export class ServicoLeads {
 
     return this.prisma.lead.findMany({
       where,
-      include: { imovel: true },
+      include: this.incluirImovel,
       orderBy: { criadoEm: 'desc' },
     });
   }
@@ -38,7 +46,7 @@ export class ServicoLeads {
   async buscarPorId(id: string) {
     const lead = await this.prisma.lead.findUnique({
       where: { id },
-      include: { imovel: true },
+      include: this.incluirImovel,
     });
 
     if (!lead) {
@@ -55,7 +63,7 @@ export class ServicoLeads {
     return this.prisma.lead.update({
       where: { id },
       data: this.limparDados(dados),
-      include: { imovel: true },
+      include: this.incluirImovel,
     });
   }
 
@@ -65,7 +73,7 @@ export class ServicoLeads {
     return this.prisma.lead.update({
       where: { id },
       data: { status: dados.status },
-      include: { imovel: true },
+      include: this.incluirImovel,
     });
   }
 
@@ -81,16 +89,18 @@ export class ServicoLeads {
       return;
     }
 
-    const imovel = await this.prisma.imovel.findUnique({ where: { id: imovelId } });
+    const imovel = await this.prisma.imovel.findUnique({
+      where: { id: imovelId },
+    });
 
     if (!imovel) {
       throw new NotFoundException('Imovel nao encontrado');
     }
   }
 
-  private limparDados<T extends { email?: string; nome?: string; origem?: string }>(
-    dados: T,
-  ) {
+  private limparDados<
+    T extends { email?: string; nome?: string; origem?: string },
+  >(dados: T) {
     return {
       ...dados,
       nome: dados.nome?.trim(),
