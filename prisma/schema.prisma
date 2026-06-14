@@ -65,20 +65,36 @@ model Lead {
 }
 
 model Imovel {
-  id           String       @id @default(uuid())
+  id           String         @id @default(uuid())
   titulo       String
   tipo         TipoImovel
-  valor        Decimal      @db.Decimal(12, 2)
+  valor        Decimal        @db.Decimal(12, 2)
   cidade       String
   bairro       String
-  status       StatusImovel @default(DISPONIVEL)
+  status       StatusImovel   @default(DISPONIVEL)
   descricao    String?
+  quartos      Int?
+  areaM2       Int?
+  cep          String?
+  latitude     Float?
+  longitude    Float?
   leads        Lead[]
-  criadoEm     DateTime     @default(now())
-  atualizadoEm DateTime     @updatedAt
+  imagens      ImovelImagem[]
+  criadoEm     DateTime       @default(now())
+  atualizadoEm DateTime       @updatedAt
 
   @@index([cidade])
   @@index([bairro])
   @@index([tipo])
   @@index([status])
+}
+
+model ImovelImagem {
+  id        String  @id @default(uuid())
+  imovelId  String
+  imovel    Imovel  @relation(fields: [imovelId], references: [id], onDelete: Cascade)
+  url       String
+  ordem     Int     @default(0)
+
+  @@index([imovelId])
 }
