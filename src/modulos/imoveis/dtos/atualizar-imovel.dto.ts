@@ -1,8 +1,9 @@
-import { TipoImovel, StatusImovel } from '@prisma/client';
+import { TipoImovel } from '@prisma/client';
 import { Type } from 'class-transformer';
 import { IsEnum, IsNumber, IsOptional } from 'class-validator';
+import { CamposOpcionaisImovel } from './campos-imovel.dto';
 
-export class DtoAtualizarImovel {
+export class DtoAtualizarImovel extends CamposOpcionaisImovel {
   @IsOptional()
   titulo?: string;
 
@@ -20,11 +21,4 @@ export class DtoAtualizarImovel {
 
   @IsOptional()
   bairro?: string;
-
-  @IsOptional()
-  @IsEnum(StatusImovel)
-  status?: StatusImovel;
-
-  @IsOptional()
-  descricao?: string;
 }
