@@ -1,11 +1,59 @@
-# SI - Soluções Imobiliárias (Backend)
+# SI - Backend
 
-API REST do CRM imobiliário. NestJS, Prisma e PostgreSQL.
+API REST do CRM. NestJS, Prisma e PostgreSQL.
 
-## Pré-requisitos
+**Repositório:** [github.com/guilhermemarch/si_backend](https://github.com/guilhermemarch/si_backend)
 
-- Node.js 20+
-- Docker (para o Postgres local)
+## Repositórios relacionados
+
+| Serviço | Repositório |
+|---------|-------------|
+| Frontend | [github.com/guilhermemarch/si_frontend](https://github.com/guilhermemarch/si_frontend) |
+| Backend | [github.com/guilhermemarch/si_backend](https://github.com/guilhermemarch/si_backend) |
+| IA | [github.com/guilhermemarch/si_ia](https://github.com/guilhermemarch/si_ia) |
+
+## Fluxo
+
+```mermaid
+flowchart TB
+  rotas[Controllers] --> servicos[Services]
+  servicos --> prisma[Prisma]
+  prisma --> db[(Postgres)]
+  modulos[modulos/] --> rotas
+```
+
+## Módulos
+
+| Módulo | Responsabilidade |
+|--------|------------------|
+| `autenticacao` | Login, cadastro, JWT |
+| `imoveis` | CRUD de imóveis + galeria |
+| `leads` | CRUD de leads + status |
+| `dashboard` | Resumo agregado |
+| `chatbot` | Proxy para o serviço de IA |
+| `assets` | Upload e proxy S3 |
+
+## Banco de dados
+
+```mermaid
+erDiagram
+  Imovel ||--o{ Lead : ""
+  Imovel ||--o{ ImovelImagem : ""
+  Usuario
+```
+
+## Rotas principais
+
+| Grupo | Endpoints |
+|-------|-----------|
+| Auth | `POST /auth/login`, `POST /auth/cadastro`, `GET /auth/me` |
+| Imóveis | `GET/POST /imoveis`, `GET/PATCH/DELETE /imoveis/:id` |
+| Leads | `GET/POST /leads`, `GET/DELETE /leads/:id`, `PATCH /leads/:id`, `PATCH /leads/:id/status` |
+| Dashboard | `GET /dashboard/resumo` |
+| Chatbot | `POST /chatbot/conversa` |
+| Assets | `GET /assets/imoveis/images/:arquivo`, `POST /assets/imoveis/upload` |
+
+Collection Postman: `postman/collection.json`
 
 ## Configuração
 
@@ -14,47 +62,50 @@ cp .env.example .env
 ```
 
 ```env
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/case_imoveis
+DATABASE_URL=postgresql://...
 JWT_SECRET=segredo-local
 JWT_EXPIRES_IN=1d
 IA_SERVICE_URL=http://localhost:8000
 PORT=3001
+S3_ENDPOINT=...
+S3_BUCKET=...
+S3_REGION=auto
+S3_ACCESS_KEY_ID=...
+S3_SECRET_ACCESS_KEY=...
+S3_PUBLIC_URL_BASE=...
+IMOVEIS_ASSETS_BASE_URL=http://localhost:3001/assets
 ```
 
-## Rodar localmente
-
-Suba o banco:
-
-```bash
-docker compose up -d postgres
-```
-
-Depois:
-
-```bash
-npm install
-npx prisma migrate deploy
-npx prisma generate
-npm run seed
-npm run start:dev
-```
 
 API em http://localhost:3001
 
-### Login do seed
+O Docker **não** executa seed nem migrate. O banco já deve estar populado.
 
-- Email: `admin@solucoesimobiliarias.com`
-- Senha: `admin123`
+## Permissões (RBAC)
 
-## Rotas principais
+| Perfil | Leitura (GET) | Escrita (POST/PATCH/DELETE) | Chatbot |
+|--------|---------------|-----------------------------|---------|
+| `ADMIN` | Sim | Sim | Sim |
+| `USUARIO` | Sim | Não (403) | Sim |
 
-- Auth: `POST /auth/cadastro`, `POST /auth/login`, `GET /auth/me`
-- Leads: `GET/POST /leads`, `PATCH /leads/:id`, `PATCH /leads/:id/status`
-- Imóveis: `GET/POST /imoveis`, `PATCH /imoveis/:id`
-- Dashboard: `GET /dashboard/resumo`
-- Chatbot: `POST /chatbot/conversa` (proxy para o serviço de IA)
+`JwtGuard` autentica; `RolesGuard` + `@Roles(ADMIN)` protegem rotas de escrita em imóveis, leads e upload de imagens.
 
-Collection Postman: `postman/collection.json`
+### Seed manual (opcional, só dev)
+
+```bash
+npm run seed
+```
+
+Use apenas para resetar um banco vazio em desenvolvimento local.
+
+O manifest de imóveis deve usar `imagensUrls`; a primeira URL vira a capa (`ordem = 0`) na galeria.
+
+### Logins demo
+
+| Perfil | Email | Senha |
+|--------|-------|-------|
+| Admin (CRUD) | `admin@solucoesimobiliarias.com` | `admin123` |
+| Visualizador (só leitura) | `viewer@solucoesimobiliarias.com` | `viewer123` |
 
 ## Docker
 
@@ -62,5 +113,3 @@ Collection Postman: `postman/collection.json`
 docker build -t si-backend .
 docker run --env-file .env -p 3001:3001 si-backend
 ```
-
-No stack completo (docker-compose da raiz), migrations e seed rodam no startup via `docker-entrypoint.sh`.
