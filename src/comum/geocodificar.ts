@@ -18,7 +18,7 @@ export async function geocodificarEndereco(
 
   try {
     const resposta = await fetch(url, {
-      headers: { 'User-Agent': 'SI-Solucoes-Imobiliarias/1.0 ' },
+      headers: { 'User-Agent': 'SI-Solucoes-Imobiliarias/1.0' },
       signal: AbortSignal.timeout(5000),
     });
 

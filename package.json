@@ -8,6 +8,7 @@
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\"",
+    "db:init": "prisma db execute --file prisma/init.sql",
     "seed": "ts-node prisma/seed.ts",
     "start": "nest start",
     "start:dev": "nest start --watch",

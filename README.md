@@ -123,6 +123,13 @@ O backend usa um Postgres externo via `DATABASE_URL`, um bucket S3 compatível p
 
 O Docker **não** executa seed nem migrate e **não** sobe Postgres local. O banco já deve existir e estar populado.
 
+### Banco vazio (só dev local)
+
+```bash
+psql "$DATABASE_URL" -f prisma/init.sql
+npm run seed
+```
+
 ## Permissões (RBAC)
 
 | Perfil | Leitura (GET) | Escrita (POST/PATCH/DELETE) | Chatbot |
