@@ -33,6 +33,16 @@ flowchart TB
 | `chatbot` | Proxy para o serviço de IA |
 | `assets` | Upload e proxy S3 |
 
+## Tecnologias e versões
+
+| Tecnologia | Versão recomendada |
+|------------|--------------------|
+| Node.js | 20+ |
+| npm | 10+ |
+| NestJS | 11+ |
+| Prisma | 6.16+ |
+| PostgreSQL | 15+ |
+
 ## Banco de dados
 
 ```mermaid
@@ -79,7 +89,9 @@ IMOVEIS_ASSETS_BASE_URL=http://localhost:3001/assets
 
 API em http://localhost:3001
 
-O Docker **não** executa seed nem migrate. O banco já deve estar populado.
+O backend usa um Postgres externo via `DATABASE_URL`, um bucket S3 compatível para imagens e o microsserviço de IA em `IA_SERVICE_URL`.
+
+O Docker **não** executa seed nem migrate e **não** sobe Postgres local. O banco já deve existir e estar populado.
 
 ## Permissões (RBAC)
 
